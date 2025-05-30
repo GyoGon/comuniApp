@@ -1,6 +1,5 @@
 import bcrypt from 'bcrypt';
-import db from '../db/index.db.js'; // tu conexión
-
+import db from '../db.js'; // Asegúrate de que la ruta sea correcta
 export async function createUser({ nombre, email, password }) {
   const hash = await bcrypt.hash(password, 10);
 
@@ -16,3 +15,5 @@ export async function createUser({ nombre, email, password }) {
 
   return { nombre, email }; // sin password
 }
+
+export default createUser;

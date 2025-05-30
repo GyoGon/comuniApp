@@ -1,6 +1,6 @@
-import { createUser } from '../../services/index.users.services.js';
-import { registerSchema } from '../schemas/users.schemas.js';
-import { createError } from '../utils/errorHandler.js';
+import { createUser } from '../../services/users.services/index.users.services.js';
+import { registerSchema } from '../../schemas/users.schemas.js';
+import { createError } from '../../utils/errorHandler.js';
 
 export const createUserController = async (req, res, next) => {
     try {
