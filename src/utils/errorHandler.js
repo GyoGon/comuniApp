@@ -5,7 +5,7 @@
  * @param {Response} res
  * @param {NextFunction} next
  */
-export function errorHandler(err, req, res, next) {
+export function handleError(err, req, res, next) {
   // Loguear error (puedes mejorar aquí para logger más avanzado)
   console.error(`[Error]: ${err.message}`);
 

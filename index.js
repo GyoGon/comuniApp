@@ -1,6 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import { errorHandler } from './src/utils/errorHandler.js';
+import { handleError } from './src/utils/errorHandler.js';
 import apiRoutes from './src/routes/index.routes.js';
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -16,7 +16,7 @@ app.use((req, res) => {
 });
 
 // Middleware global para errores
-app.use(errorHandler);
+app.use(handleError);
 
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en http://localhost:${PORT}`);

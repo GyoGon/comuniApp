@@ -1,3 +1,5 @@
 node_modules/
 .env
 /src/utils/schema.sql
+/docker-compose.yml
+/.dockerignore

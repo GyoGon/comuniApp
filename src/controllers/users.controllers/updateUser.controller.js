@@ -1,4 +1,4 @@
-import updateUser from "../../services/users.services/updateUser.service";
+import updateUser from "../../services/users.services/updateUser.service.js";
 import { handleError } from "../../utils/errorHandler.js";
 
 export const updateUserController = async (req, res, next) => {
