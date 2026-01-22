@@ -1,4 +1,4 @@
-import getUserById from "../../services/users.services/getUserById.service.js";
+import getUserById from "../../services/usersServices/getUserByIdService.js";
 import { handleError } from "../../utils/errorHandler.js";
 
 export const getUserByIdController = async (req, res, next) => {

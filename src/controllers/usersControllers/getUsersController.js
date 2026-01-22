@@ -1,4 +1,4 @@
-import { getUsers } from '../../services/users.services/getUsers.service.js';
+import { getUsers } from '../../services/usersServices/getUsersService.js';
 import { handleError } from '../../utils/errorHandler.js';
 export const getUsersController = async (req, res, next) => {
     try {

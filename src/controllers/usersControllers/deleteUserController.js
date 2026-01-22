@@ -1,4 +1,4 @@
-import { deleteUser } from "../../services/users.services/index.users.services.js";
+import { deleteUser } from "../../services/usersServices/indexUsersServices.js";
 import { handleError } from "../../utils/errorHandler.js";
 export const deleteUserController = async (req, res, next) => {
     try {

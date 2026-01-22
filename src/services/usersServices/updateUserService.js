@@ -1,4 +1,4 @@
-import db from '../../db/index.db.js';
+import db from '../../db/indexDb.js';
 
 export async function updateUser(userId, userData) {
   // Verificar si el usuario existe

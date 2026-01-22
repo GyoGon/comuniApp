@@ -1,7 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import { handleError } from './src/utils/errorHandler.js';
-import apiRoutes from './src/routes/index.routes.js';
+import apiRoutes from './src/routes/indexRoutes.js';
 const app = express();
 const PORT = process.env.PORT || 8080;
 dotenv.config();

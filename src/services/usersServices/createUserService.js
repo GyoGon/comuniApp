@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import db from '../../db/index.db.js';
+import db from '../../db/indexDb.js';
 export async function createUser({ nombre, email, password }) {
   const hash = await bcrypt.hash(password, 10);
 
