@@ -1,4 +1,5 @@
 import db from '../../db/indexDb.js';
+import logger from '../../utils/logger.js';
 import { verifyRefreshToken, generateAccessToken } from '../../utils/jwtHandler.js';
 
 /**
@@ -8,11 +9,14 @@ import { verifyRefreshToken, generateAccessToken } from '../../utils/jwtHandler.
  * @throws {Error} If refresh token is invalid or not found in database
  */
 export async function refreshService(refreshToken) {
+  logger.debug('Token refresh attempt');
+
   // Verify refresh token is valid
   let decoded;
   try {
     decoded = verifyRefreshToken(refreshToken);
   } catch (err) {
+    logger.warn('Token refresh failed - invalid or expired token');
     throw new Error('Token de refresco inválido o expirado');
   }
 
@@ -25,6 +29,7 @@ export async function refreshService(refreshToken) {
   );
 
   if (users.length === 0) {
+    logger.warn('Token refresh failed - token not found in database', { userId });
     throw new Error('Token de refresco no encontrado o no válido');
   }
 
@@ -33,6 +38,7 @@ export async function refreshService(refreshToken) {
   // Generate new access token
   const newAccessToken = generateAccessToken(user.id, user.role);
 
+  logger.info('Token refreshed successfully', { userId });
   return {
     accessToken: newAccessToken,
   };

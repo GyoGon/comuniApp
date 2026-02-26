@@ -1,4 +1,5 @@
 import db from '../../db/indexDb.js';
+import logger from '../../utils/logger.js';
 
 /**
  * Get all posts with pagination
@@ -9,6 +10,7 @@ import db from '../../db/indexDb.js';
  * @throws {Error} If database operation fails
  */
 export async function getPosts({ limit = 10, offset = 0 }) {
+  logger.debug('Fetching posts', { limit, offset });
   const sql = `
     SELECT 
       p.id,
@@ -40,6 +42,7 @@ export async function getPosts({ limit = 10, offset = 0 }) {
     const [posts] = await db.query(sql, [limit, offset]);
     const [countResult] = await db.query(countSql);
 
+    logger.info('Posts fetched successfully', { count: posts.length, total: countResult[0].total });
     return {
       posts,
       total: countResult[0].total,
@@ -47,6 +50,7 @@ export async function getPosts({ limit = 10, offset = 0 }) {
       offset,
     };
   } catch (error) {
+    logger.error('Error fetching posts', { error: error.message });
     throw new Error(`Error al obtener posts: ${error.message}`);
   }
 }

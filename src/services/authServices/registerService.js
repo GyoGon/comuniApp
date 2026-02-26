@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import db from '../../db/indexDb.js';
+import logger from '../../utils/logger.js';
 
 /**
  * Register a new user
@@ -12,6 +13,8 @@ import db from '../../db/indexDb.js';
  * @throws {Error} If email already exists or database error
  */
 export async function registerService({ nombre, email, password, telefono }) {
+  logger.debug('Registering new user', { email, nombre });
+
   // Check if email already exists
   const [existing] = await db.query(
     'SELECT id FROM usuarios WHERE email = ?',
@@ -19,6 +22,7 @@ export async function registerService({ nombre, email, password, telefono }) {
   );
 
   if (existing.length > 0) {
+    logger.warn('Registration failed - email already registered', { email });
     throw new Error('El email ya está registrado');
   }
 
@@ -37,5 +41,6 @@ export async function registerService({ nombre, email, password, telefono }) {
     [result.insertId]
   );
 
+  logger.info('User registered successfully', { userId: newUser[0].id, email });
   return newUser[0];
 }

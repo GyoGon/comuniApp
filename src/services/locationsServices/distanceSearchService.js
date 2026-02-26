@@ -1,4 +1,5 @@
 import db from '../../db/indexDb.js';
+import logger from '../../utils/logger.js';
 
 /**
  * Calculate distance between two coordinates using Haversine formula (in km)
@@ -36,13 +37,17 @@ function haversineDistance(lat1, lon1, lat2, lon2) {
 export async function nearbyLocations(latitud, longitud, radiusKm = 10, pagination = {}) {
   const { limit = 20, offset = 0 } = pagination;
 
+  logger.debug('Searching nearby locations', { latitud, longitud, radiusKm });
+
   try {
     // Validate coordinates
     if (latitud < -90 || latitud > 90 || longitud < -180 || longitud > 180) {
+      logger.warn('Nearby locations search failed - invalid coordinates', { latitud, longitud });
       throw new Error('Coordenadas inválidas (latitud: -90 a 90, longitud: -180 a 180)');
     }
 
     if (radiusKm <= 0) {
+      logger.warn('Nearby locations search failed - invalid radius', { radiusKm });
       throw new Error('El radio debe ser mayor a 0 km');
     }
 
@@ -78,6 +83,7 @@ export async function nearbyLocations(latitud, longitud, radiusKm = 10, paginati
     const total = locationsWithDistance.length;
     const paginatedLocations = locationsWithDistance.slice(offset, offset + limit);
 
+    logger.info('Nearby locations found', { total, returnedCount: paginatedLocations.length, radiusKm });
     return {
       locations: paginatedLocations,
       total,
@@ -85,6 +91,7 @@ export async function nearbyLocations(latitud, longitud, radiusKm = 10, paginati
       offset,
     };
   } catch (error) {
+    logger.error('Error searching nearby locations', { latitud, longitud, radiusKm, error: error.message });
     throw new Error(`Error en búsqueda de ubicaciones cercanas: ${error.message}`);
   }
 }

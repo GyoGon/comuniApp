@@ -1,4 +1,5 @@
 import db from '../../db/indexDb.js';
+import logger from '../../utils/logger.js';
 
 /**
  * Get a single post by ID with full details
@@ -7,6 +8,7 @@ import db from '../../db/indexDb.js';
  * @throws {Error} If post not found or database operation fails
  */
 export async function getPostById(postId) {
+  logger.debug('Fetching post by ID', { postId });
   const sql = `
     SELECT 
       p.id,
@@ -41,11 +43,14 @@ export async function getPostById(postId) {
     const [posts] = await db.query(sql, [postId]);
 
     if (posts.length === 0) {
+      logger.warn('Post not found', { postId });
       throw new Error('Post no encontrado');
     }
 
+    logger.debug('Post found successfully', { postId });
     return posts[0];
   } catch (error) {
+    logger.error('Error fetching post', { postId, error: error.message });
     throw new Error(`Error al obtener post: ${error.message}`);
   }
 }

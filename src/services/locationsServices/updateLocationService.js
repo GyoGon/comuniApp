@@ -1,4 +1,5 @@
 import db from '../../db/indexDb.js';
+import logger from '../../utils/logger.js';
 
 /**
  * Update a location
@@ -8,6 +9,8 @@ import db from '../../db/indexDb.js';
  * @throws {Error} If location not found or database operation fails
  */
 export async function updateLocation(locationId, updateData) {
+  logger.debug('Updating location', { locationId, fields: Object.keys(updateData) });
+
   // Check if location exists
   const selectSql = 'SELECT id FROM ubicaciones WHERE id = ? AND deleted_at IS NULL';
 
@@ -15,6 +18,7 @@ export async function updateLocation(locationId, updateData) {
     const [locations] = await db.query(selectSql, [locationId]);
 
     if (locations.length === 0) {
+      logger.warn('Location update failed - location not found', { locationId });
       throw new Error('Ubicación no encontrada');
     }
 
@@ -24,6 +28,7 @@ export async function updateLocation(locationId, updateData) {
       .filter(key => allowedFields.includes(key) && updateData[key] !== undefined);
 
     if (updateFields.length === 0) {
+      logger.warn('Location update failed - no fields to update', { locationId });
       throw new Error('No hay campos para actualizar');
     }
 
@@ -41,8 +46,10 @@ export async function updateLocation(locationId, updateData) {
       [locationId]
     );
 
+    logger.info('Location updated successfully', { locationId });
     return updatedLocations[0];
   } catch (error) {
+    logger.error('Error updating location', { locationId, error: error.message });
     throw new Error(`Error al actualizar ubicación: ${error.message}`);
   }
 }

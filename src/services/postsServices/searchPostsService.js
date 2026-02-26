@@ -1,4 +1,5 @@
 import db from '../../db/indexDb.js';
+import logger from '../../utils/logger.js';
 
 /**
  * Search posts by query string in titulo and descripcion
@@ -18,6 +19,8 @@ import db from '../../db/indexDb.js';
 export async function searchPosts(query, filters = {}, pagination = {}) {
   const { limit = 10, offset = 0 } = pagination;
   const { categoria_id, ubicacion_id, fecha_desde, fecha_hasta, usuario_id } = filters;
+
+  logger.debug('Searching posts', { query, filters: Object.keys(filters), limit, offset });
 
   try {
     // Build WHERE conditions
@@ -91,6 +94,7 @@ export async function searchPosts(query, filters = {}, pagination = {}) {
     const [posts] = await db.query(sql, [...params, limit, offset]);
     const [countResult] = await db.query(countSql, params);
 
+    logger.info('Posts search completed', { query, count: posts.length, total: countResult[0].total });
     return {
       posts,
       total: countResult[0].total,
@@ -98,6 +102,7 @@ export async function searchPosts(query, filters = {}, pagination = {}) {
       offset,
     };
   } catch (error) {
+    logger.error('Error searching posts', { query, error: error.message });
     throw new Error(`Error en búsqueda de posts: ${error.message}`);
   }
 }

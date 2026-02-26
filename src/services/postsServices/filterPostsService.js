@@ -1,4 +1,5 @@
 import db from '../../db/indexDb.js';
+import logger from '../../utils/logger.js';
 
 /**
  * Filter posts by multiple criteria with pagination
@@ -19,8 +20,11 @@ export async function filterPosts(filters = {}, pagination = {}) {
   const { limit = 10, offset = 0 } = pagination;
   const { categoria_id, ubicacion_id, fecha_desde, fecha_hasta, usuario_id, search } = filters;
 
+  logger.debug('Filtering posts', { categoria_id, ubicacion_id, hasSearch: !!search, limit, offset });
+
   // Validate required filters
   if (!categoria_id || !ubicacion_id) {
+    logger.warn('Post filter failed - missing required filters', { categoria_id, ubicacion_id });
     throw new Error('categoria_id y ubicacion_id son requeridos para filtrar');
   }
 
@@ -89,6 +93,7 @@ export async function filterPosts(filters = {}, pagination = {}) {
     const [posts] = await db.query(sql, [...params, limit, offset]);
     const [countResult] = await db.query(countSql, params);
 
+    logger.info('Posts filtered successfully', { categoria_id, ubicacion_id, count: posts.length, total: countResult[0].total });
     return {
       posts,
       total: countResult[0].total,
@@ -96,6 +101,7 @@ export async function filterPosts(filters = {}, pagination = {}) {
       offset,
     };
   } catch (error) {
+    logger.error('Error filtering posts', { categoria_id, ubicacion_id, error: error.message });
     throw new Error(`Error al filtrar posts: ${error.message}`);
   }
 }

@@ -1,4 +1,5 @@
 import db from '../../db/indexDb.js';
+import logger from '../../utils/logger.js';
 
 /**
  * Update a category
@@ -10,6 +11,8 @@ import db from '../../db/indexDb.js';
  * @throws {Error} If category not found or database operation fails
  */
 export async function updateCategory(categoryId, updateData) {
+  logger.debug('Updating category', { categoryId, fields: Object.keys(updateData) });
+
   // Check if category exists
   const selectSql = 'SELECT id FROM categorias WHERE id = ? AND deleted_at IS NULL';
 
@@ -17,6 +20,7 @@ export async function updateCategory(categoryId, updateData) {
     const [categories] = await db.query(selectSql, [categoryId]);
 
     if (categories.length === 0) {
+      logger.warn('Category update failed - category not found', { categoryId });
       throw new Error('Categoría no encontrada');
     }
 
@@ -26,6 +30,7 @@ export async function updateCategory(categoryId, updateData) {
       .filter(key => allowedFields.includes(key) && updateData[key] !== undefined);
 
     if (updateFields.length === 0) {
+      logger.warn('Category update failed - no fields to update', { categoryId });
       throw new Error('No hay campos para actualizar');
     }
 
@@ -36,6 +41,7 @@ export async function updateCategory(categoryId, updateData) {
         [updateData.nombre, categoryId]
       );
       if (existing.length > 0) {
+        logger.warn('Category update failed - name already exists', { categoryId, nombre: updateData.nombre });
         throw new Error('El nombre de la categoría ya existe');
       }
     }
@@ -54,8 +60,10 @@ export async function updateCategory(categoryId, updateData) {
       [categoryId]
     );
 
+    logger.info('Category updated successfully', { categoryId });
     return updatedCategories[0];
   } catch (error) {
+    logger.error('Error updating category', { categoryId, error: error.message });
     throw new Error(`Error al actualizar categoría: ${error.message}`);
   }
 }

@@ -1,8 +1,10 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import swaggerUi from 'swagger-ui-express';
+import logger from './src/utils/logger.js';
 import { handleError } from './src/utils/errorHandler.js';
 import { sanitizeInput } from './src/middlewares/sanitizeMiddleware.js';
+import loggerMiddleware from './src/middlewares/loggerMiddleware.js';
 import swaggerSpec from './src/swagger/swaggerConfig.js';
 import apiRoutes from './src/routes/indexRoutes.js';
 
@@ -12,6 +14,7 @@ dotenv.config();
 
 // Middleware
 app.use(express.json());
+app.use(loggerMiddleware);
 app.use(sanitizeInput);
 
 // Routes
@@ -39,8 +42,8 @@ app.use((req, res) => {
 app.use(handleError);
 
 app.listen(PORT, () => {
-  console.log(`Servidor escuchando en http://localhost:${PORT}`);
-  console.log(`Documentación disponible en http://localhost:${PORT}/api-docs`);
+  logger.info(`Servidor escuchando en http://localhost:${PORT}`);
+  logger.info(`Documentación disponible en http://localhost:${PORT}/api-docs`);
 });
 
 export default app;

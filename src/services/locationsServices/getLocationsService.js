@@ -1,4 +1,5 @@
 import db from '../../db/indexDb.js';
+import logger from '../../utils/logger.js';
 
 /**
  * Get all locations with pagination
@@ -9,6 +10,8 @@ import db from '../../db/indexDb.js';
  * @throws {Error} If database operation fails
  */
 export async function getLocations({ limit = 10, offset = 0 }) {
+  logger.debug('Fetching locations', { limit, offset });
+
   const sql = `
     SELECT id, latitud, longitud, direccion, ciudad, provincia, pais
     FROM ubicaciones
@@ -23,6 +26,7 @@ export async function getLocations({ limit = 10, offset = 0 }) {
     const [locations] = await db.query(sql, [limit, offset]);
     const [countResult] = await db.query(countSql);
 
+    logger.info('Locations fetched successfully', { count: locations.length, total: countResult[0].total });
     return {
       locations,
       total: countResult[0].total,
@@ -30,6 +34,7 @@ export async function getLocations({ limit = 10, offset = 0 }) {
       offset,
     };
   } catch (error) {
+    logger.error('Error fetching locations', { error: error.message });
     throw new Error(`Error al obtener ubicaciones: ${error.message}`);
   }
 }

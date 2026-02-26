@@ -1,4 +1,5 @@
 import db from '../../db/indexDb.js';
+import logger from '../../utils/logger.js';
 
 /**
  * Create a new location
@@ -20,6 +21,8 @@ export async function createLocation({
   provincia = null,
   pais = null,
 }) {
+  logger.debug('Creating new location', { latitud, longitud, ciudad });
+
   const sql = `
     INSERT INTO ubicaciones (latitud, longitud, direccion, ciudad, provincia, pais)
     VALUES (?, ?, ?, ?, ?, ?)
@@ -28,6 +31,7 @@ export async function createLocation({
   try {
     const [result] = await db.query(sql, [latitud, longitud, direccion, ciudad, provincia, pais]);
 
+    logger.info('Location created successfully', { locationId: result.insertId, ciudad });
     return {
       id: result.insertId,
       latitud,
@@ -38,6 +42,7 @@ export async function createLocation({
       pais,
     };
   } catch (error) {
+    logger.error('Error creating location', { ciudad, error: error.message });
     throw new Error(`Error al crear ubicación: ${error.message}`);
   }
 }
