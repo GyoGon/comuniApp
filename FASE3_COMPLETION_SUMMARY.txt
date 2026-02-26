@@ -1,0 +1,180 @@
+========================================
+FASE 3: ADVANCED SEARCH & FILTERING
+COMPLETION REPORT
+========================================
+
+DATE: 2026-02-26
+STATUS: ✓ ALL 5 TASKS COMPLETED
+
+========================================
+TASK 1: FULL-TEXT SEARCH SERVICE ✓
+========================================
+FILE: src/services/postsServices/searchPostsService.js
+FUNCTION: searchPosts(query, filters, pagination)
+
+FEATURES:
+- Full-text search in posts.titulo AND posts.descripcion
+- Case-insensitive LIKE queries (LOWER() function)
+- Optional filters: categoria_id, ubicacion_id, fecha_desde, fecha_hasta, usuario_id
+- Pagination support (limit, offset)
+- Excludes soft-deleted posts (deleted_at IS NULL)
+- Returns user, category, and location info
+- Return format: { posts: [], total, limit, offset }
+
+========================================
+TASK 2: ADVANCED FILTERS SERVICE ✓
+========================================
+FILE: src/services/postsServices/filterPostsService.js
+FUNCTION: filterPosts(filters, pagination)
+
+FEATURES:
+- Required filters: categoria_id, ubicacion_id
+- Optional filters: fecha_desde, fecha_hasta, usuario_id, search (text)
+- Combines multiple filters with AND logic
+- Validates required parameters (throws error if missing)
+- Pagination support (limit, offset)
+- Excludes soft-deleted posts
+- Ordered by created_at DESC
+- Returns user, category, and location info
+
+========================================
+TASK 3: DISTANCE SEARCH SERVICE (GPS) ✓
+========================================
+FILE: src/services/locationsServices/distanceSearchService.js
+FUNCTION: nearbyLocations(latitud, longitud, radiusKm, pagination)
+
+FEATURES:
+- Haversine formula implementation for distance calculation
+- Finds locations within specified radius (km)
+- Validates coordinate ranges: latitud (-90 to 90), longitud (-180 to 180)
+- Filters results by distance
+- Sorts by distance (nearest first)
+- Pagination support (limit, offset)
+- Returns distance_km for each location
+- Earth radius: 6371 km
+- Return format: { locations: [{...distance_km}], total, limit, offset }
+
+========================================
+TASK 4: SEARCH CONTROLLER & ROUTES ✓
+========================================
+FILE: src/controllers/postsControllers/searchPostsController.js
+EXPORTS: searchPostsController, filterPostsController
+
+CONTROLLER 1: searchPostsController
+- Endpoint: GET /posts/search
+- Query params: q (required), categoria_id, ubicacion_id, fecha_desde, fecha_hasta, limit, offset
+- Validates with searchSchema (Joi)
+- Returns posts with pagination
+
+CONTROLLER 2: filterPostsController
+- Endpoint: GET /posts/filter
+- Query params: categoria_id (required), ubicacion_id (required), fecha_desde, fecha_hasta, usuario_id, search, limit, offset
+- Validates with filterSchema (Joi)
+- Returns posts with pagination
+
+NEARBY LOCATIONS CONTROLLER:
+FILE: src/controllers/locationsControllers/nearbyLocationsController.js
+EXPORT: nearbyLocationsController
+- Endpoint: GET /locations/nearby
+- Query params: latitud (required), longitud (required), radiusKm, limit, offset
+- Validates with distanceSearchSchema (Joi)
+- Returns locations with pagination
+
+ROUTE UPDATES:
+- src/routes/postsRoutes.js: Added /search and /filter routes (BEFORE /:id route)
+- src/routes/locationsRoutes.js: Added /nearby route (BEFORE /:id route)
+
+========================================
+TASK 5: VALIDATION SCHEMAS ✓
+========================================
+FILE: src/schemas/searchSchemas.js
+
+SCHEMA 1: searchSchema
+- q: string (required, min 1, max 255)
+- categoria_id: number (optional)
+- ubicacion_id: number (optional)
+- fecha_desde: ISO date (optional)
+- fecha_hasta: ISO date (optional)
+- limit: number (1-100, default: 10)
+- offset: number (min 0, default: 0)
+
+SCHEMA 2: filterSchema
+- categoria_id: number (required)
+- ubicacion_id: number (required)
+- fecha_desde: ISO date (optional)
+- fecha_hasta: ISO date (optional)
+- usuario_id: number (optional)
+- search: string (optional, min 1, max 255)
+- limit: number (1-100, default: 10)
+- offset: number (min 0, default: 0)
+
+SCHEMA 3: distanceSearchSchema
+- latitud: number (-90 to 90, required)
+- longitud: number (-180 to 180, required)
+- radiusKm: number (positive, default: 10)
+- limit: number (1-100, default: 20)
+- offset: number (min 0, default: 0)
+
+========================================
+FILE SUMMARY
+========================================
+✓ src/services/postsServices/searchPostsService.js (100 lines)
+✓ src/services/postsServices/filterPostsService.js (101 lines)
+✓ src/services/locationsServices/distanceSearchService.js (90 lines)
+✓ src/controllers/postsControllers/searchPostsController.js (85 lines)
+✓ src/controllers/locationsControllers/nearbyLocationsController.js (38 lines)
+✓ src/schemas/searchSchemas.js (60 lines)
+✓ Updated: src/services/postsServices/indexPostsServices.js
+✓ Updated: src/services/locationsServices/indexLocationsServices.js
+✓ Updated: src/controllers/postsControllers/indexPostsControllers.js
+✓ Updated: src/controllers/locationsControllers/indexLocationsControllers.js
+✓ Updated: src/routes/postsRoutes.js
+✓ Updated: src/routes/locationsRoutes.js
+
+TOTAL NEW FILES: 6
+TOTAL UPDATED FILES: 6
+
+========================================
+API ENDPOINTS
+========================================
+
+1. GET /posts/search
+   Query: q, categoria_id, ubicacion_id, fecha_desde, fecha_hasta, limit, offset
+   Full-text search in posts
+
+2. GET /posts/filter
+   Query: categoria_id, ubicacion_id, fecha_desde, fecha_hasta, usuario_id, search, limit, offset
+   Advanced filtering with required category and location
+
+3. GET /locations/nearby
+   Query: latitud, longitud, radiusKm, limit, offset
+   GPS-based distance search for nearby locations
+
+========================================
+DATABASE QUERIES
+========================================
+
+Search & Filter Services:
+- Use parameterized queries for SQL injection prevention
+- LOWER() function for case-insensitive search
+- LEFT JOIN with usuarios, categorias, ubicaciones tables
+- WHERE clause filtering with AND logic
+- Soft delete check: deleted_at IS NULL
+- ORDER BY: fecha_creacion DESC
+
+Distance Search Service:
+- Haversine formula in JavaScript (no MySQL ST_Distance needed)
+- Memory-based filtering and sorting
+- Pagination applied after distance filtering
+
+========================================
+TESTING ENDPOINTS
+========================================
+
+curl "http://localhost:8080/posts/search?q=javascript&limit=10"
+curl "http://localhost:8080/posts/filter?categoria_id=1&ubicacion_id=1&limit=10"
+curl "http://localhost:8080/locations/nearby?latitud=40.7128&longitud=-74.0060&radiusKm=5"
+
+========================================
+END OF REPORT
+========================================
